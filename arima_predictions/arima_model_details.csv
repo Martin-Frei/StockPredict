@@ -1,0 +1,13 @@
+Symbol,ARIMA_Order,AIC,Training_Samples,Selection_Method,Diagnostics
+JPM,"(0, 1, 1)",-2724.985982144357,319,AIC_comparison,"{'residual_autocorr': np.float64(0.06029855230355556), 'stationarity_d': 0, 'selection_method': 'AIC_comparison'}"
+BAC,"(0, 1, 1)",-2765.28145224834,319,AIC_comparison,"{'residual_autocorr': np.float64(0.6615222479175763), 'stationarity_d': 0, 'selection_method': 'AIC_comparison'}"
+WFC,"(0, 1, 1)",-2644.3603150742383,317,AIC_comparison,"{'residual_autocorr': np.float64(0.24391793551034302), 'stationarity_d': 0, 'selection_method': 'AIC_comparison'}"
+C,"(0, 1, 1)",-2647.772009355746,319,AIC_comparison,"{'residual_autocorr': np.float64(0.20895895173607712), 'stationarity_d': 0, 'selection_method': 'AIC_comparison'}"
+GS,"(2, 1, 1)",-2660.596088729626,319,AIC_comparison,"{'residual_autocorr': np.float64(0.9398501369221981), 'stationarity_d': 0, 'selection_method': 'AIC_comparison'}"
+MS,"(0, 1, 1)",-2600.4872954797465,314,AIC_comparison,"{'residual_autocorr': np.float64(5.679176218791849e-05), 'stationarity_d': 0, 'selection_method': 'AIC_comparison'}"
+USB,"(1, 1, 1)",-2396.4985430000124,294,AIC_comparison,"{'residual_autocorr': np.float64(0.6626014282850514), 'stationarity_d': 0, 'selection_method': 'AIC_comparison'}"
+PNC,"(2, 1, 1)",-2150.702062221455,278,AIC_comparison,"{'residual_autocorr': np.float64(0.6984796864538725), 'stationarity_d': 0, 'selection_method': 'AIC_comparison'}"
+TFC,"(2, 1, 1)",-2110.8684896438363,275,AIC_comparison,"{'residual_autocorr': np.float64(0.8092218863291964), 'stationarity_d': 0, 'selection_method': 'AIC_comparison'}"
+BLK,"(1, 1, 1)",-2539.019180648534,319,AIC_comparison,"{'residual_autocorr': np.float64(0.1553234423399458), 'stationarity_d': 0, 'selection_method': 'AIC_comparison'}"
+AXP,"(1, 1, 1)",-2579.631119434969,319,AIC_comparison,"{'residual_autocorr': np.float64(0.04184254221335381), 'stationarity_d': 0, 'selection_method': 'AIC_comparison'}"
+COF,"(2, 1, 1)",-2341.723505184099,306,AIC_comparison,"{'residual_autocorr': np.float64(0.9773252770604344), 'stationarity_d': 0, 'selection_method': 'AIC_comparison'}"

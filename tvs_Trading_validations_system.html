@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Validation System (TVS)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .status-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .status-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .status-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .status-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .chart-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #FFD700;
+        }
+        
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .model-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .model-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .model-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .model-rank {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .btn.active {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000;
+        }
+        
+        .backfill-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(45deg, #00ff88, #00cc69);
+            height: 8px;
+            transition: width 0.5s ease;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .alert-success {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+        }
+        
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+        }
+        
+        .alert-error {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid #dc3545;
+        }
+        
+        .log-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Trading Validation System (TVS)</h1>
+            <p>Historische Performance-Analyse & Model-Validierung</p>
+            <p id="lastUpdate">Letzte Aktualisierung: <span id="updateTime">--</span></p>
+        </div>
+        
+        <div class="backfill-section">
+            <h2>🔄 Automatic Backfill System</h2>
+            <div id="backfillStatus">System bereit...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="backfillProgress" style="width: 0%"></div>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="startBackfill()">🚀 Start Backfill</button>
+                <button class="btn" onclick="checkMissingDays()">📊 Check Missing Days</button>
+                <button class="btn" onclick="validateData()">✅ Validate Data</button>
+            </div>
+            <div class="log-container" id="logContainer">
+                <div>TVS System initialisiert...</div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-card">
+                <div class="status-value" id="totalPredictions">0</div>
+                <div class="status-label">Total Predictions</div>
+            </div>
+            <div class="status-card">
+                <div class="status-value" id="hitRate">0%</div>
+                <div class="status-label">Hit Rate</div>
+            </div>
+            <div class="status-card">
+                <div class="status-value" id="totalReturn">0%</div>
+                <div class="status-label">Total Return</div>
+            </div>
+            <div class="status-card">
+                <div class="status-value" id="sharpeRatio">0.0</div>
+                <div class="status-label">Sharpe Ratio</div>
+            </div>
+            <div class="status-card">
+                <div class="status-value" id="bestModel">--</div>
+                <div class="status-label">Best Model</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn active" onclick="showOverview()">📊 Overview</button>
+            <button class="btn" onclick="showModels()">🤖 Models</button>
+            <button class="btn" onclick="showBanks()">🏦 Banks</button>
+            <button class="btn" onclick="showTimeAnalysis()">📈 Time Analysis</button>
+            <button class="btn" onclick="exportResults()">💾 Export</button>
+        </div>
+        
+        <div class="main-content" id="mainContent">
+            <div class="chart-container">
+                <div class="chart-title">📈 Cumulative Returns: Predicted vs Actual</div>
+                <canvas id="returnsChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">🎯 Hit Rate Over Time</div>
+                <canvas id="hitRateChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">⚡ Model Performance Comparison</div>
+                <canvas id="modelComparisonChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">🏦 Bank Performance Analysis</div>
+                <canvas id="bankPerformanceChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="performance-grid" id="performanceGrid">
+            <!-- Model cards will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        // Trading Validation System (TVS) - Core Logic
+        class TradingValidationSystem {
+            constructor() {
+                this.data = {
+                    predictions: new Map(),
+                    actuals: new Map(),
+                    performance: new Map(),
+                    models: ['RandomForest', 'XGBoost', 'LSTM', 'LinearRegression', 'Ensemble'],
+                    banks: ['JPM', 'BAC', 'WFC', 'C', 'GS', 'MS', 'USB', 'PNC', 'TFC', 'COF'],
+                    timeRange: { start: null, end: null }
+                };
+                this.charts = {};
+                this.isProcessing = false;
+                this.initializeSystem();
+            }
+            
+            initializeSystem() {
+                this.log('🚀 TVS System wird initialisiert...');
+                this.generateSampleData();
+                this.calculatePerformanceMetrics();
+                this.updateDashboard();
+                this.log('✅ TVS System erfolgreich initialisiert');
+                document.getElementById('updateTime').textContent = new Date().toLocaleString('de-DE');
+            }
+            
+            generateSampleData() {
+                // Simulate historical predictions and actual results
+                const startDate = new Date('2025-08-01');
+                const endDate = new Date('2025-08-15');
+                
+                this.data.timeRange.start = startDate;
+                this.data.timeRange.end = endDate;
+                
+                // Generate daily data
+                for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+                    // Skip weekends
+                    if (date.getDay() === 0 || date.getDay() === 6) continue;
+                    
+                    const dateStr = date.toISOString().split('T')[0];
+                    
+                    this.data.banks.forEach(bank => {
+                        this.data.models.forEach(model => {
+                            const key = `${dateStr}_${bank}_${model}`;
+                            
+                            // Generate predicted returns (-5% to +5%)
+                            const predicted = (Math.random() - 0.5) * 10;
+                            
+                            // Generate actual returns with some correlation to prediction
+                            const noise = (Math.random() - 0.5) * 4;
+                            const correlation = 0.6; // 60% correlation
+                            const actual = predicted * correlation + noise;
+                            
+                            this.data.predictions.set(key, {
+                                date: dateStr,
+                                bank: bank,
+                                model: model,
+                                predicted: predicted,
+                                actual: actual,
+                                direction_predicted: predicted > 0 ? 'bullish' : 'bearish',
+                                direction_actual: actual > 0 ? 'bullish' : 'bearish'
+                            });
+                        });
+                    });
+                }
+                
+                this.log(`📊 Sample Data generiert: ${this.data.predictions.size} Predictions`);
+            }
+            
+            calculatePerformanceMetrics() {
+                // Calculate performance metrics for each model
+                const modelStats = {};
+                
+                this.data.models.forEach(model => {
+                    modelStats[model] = {
+                        totalPredictions: 0,
+                        correctDirections: 0,
+                        totalPredictedReturn: 0,
+                        totalActualReturn: 0,
+                        absoluteErrors: [],
+                        returns: [],
+                        dates: []
+                    };
+                });
+                
+                // Process all predictions
+                this.data.predictions.forEach((pred, key) => {
+                    const model = pred.model;
+                    const stats = modelStats[model];
+                    
+                    stats.totalPredictions++;
+                    stats.totalPredictedReturn += pred.predicted;
+                    stats.totalActualReturn += pred.actual;
+                    stats.absoluteErrors.push(Math.abs(pred.predicted - pred.actual));
+                    stats.returns.push(pred.actual);
+                    stats.dates.push(pred.date);
+                    
+                    // Check direction accuracy
+                    if (pred.direction_predicted === pred.direction_actual) {
+                        stats.correctDirections++;
+                    }
+                });
+                
+                // Calculate final metrics
+                this.data.models.forEach(model => {
+                    const stats = modelStats[model];
+                    
+                    if (stats.totalPredictions > 0) {
+                        const hitRate = (stats.correctDirections / stats.totalPredictions) * 100;
+                        const mape = stats.absoluteErrors.reduce((a, b) => a + b, 0) / stats.absoluteErrors.length;
+                        const avgReturn = stats.totalActualReturn / stats.totalPredictions;
+                        const returnStd = this.calculateStandardDeviation(stats.returns);
+                        const sharpeRatio = returnStd > 0 ? (avgReturn / returnStd) * Math.sqrt(252) : 0;
+                        
+                        // Composite accuracy score
+                        const accuracyScore = (hitRate * 0.6) + ((100 - mape) * 0.4);
+                        
+                        this.data.performance.set(model, {
+                            hitRate: hitRate,
+                            mape: mape,
+                            avgReturn: avgReturn,
+                            totalReturn: stats.totalActualReturn,
+                            sharpeRatio: sharpeRatio,
+                            accuracyScore: accuracyScore,
+                            totalPredictions: stats.totalPredictions,
+                            volatility: returnStd
+                        });
+                    }
+                });
+                
+                this.log('📊 Performance Metriken berechnet');
+            }
+            
+            calculateStandardDeviation(values) {
+                const mean = values.reduce((a, b) => a + b, 0) / values.length;
+                const squaredDiffs = values.map(val => Math.pow(val - mean, 2));
+                return Math.sqrt(squaredDiffs.reduce((a, b) => a + b, 0) / values.length);
+            }
+            
+            updateDashboard() {
+                // Update status cards
+                const totalPreds = Array.from(this.data.performance.values())
+                    .reduce((sum, perf) => sum + perf.totalPredictions, 0);
+                
+                const avgHitRate = Array.from(this.data.performance.values())
+                    .reduce((sum, perf) => sum + perf.hitRate, 0) / this.data.models.length;
+                
+                const totalReturn = Array.from(this.data.performance.values())
+                    .reduce((sum, perf) => sum + perf.totalReturn, 0);
+                
+                const avgSharpe = Array.from(this.data.performance.values())
+                    .reduce((sum, perf) => sum + perf.sharpeRatio, 0) / this.data.models.length;
+                
+                const bestModel = Array.from(this.data.performance.entries())
+                    .sort((a, b) => b[1].accuracyScore - a[1].accuracyScore)[0]?.[0] || '--';
+                
+                document.getElementById('totalPredictions').textContent = totalPreds.toLocaleString();
+                document.getElementById('hitRate').textContent = avgHitRate.toFixed(1) + '%';
+                document.getElementById('totalReturn').textContent = totalReturn.toFixed(1) + '%';
+                document.getElementById('sharpeRatio').textContent = avgSharpe.toFixed(2);
+                document.getElementById('bestModel').textContent = bestModel;
+                
+                // Create charts
+                this.createCharts();
+                this.createModelCards();
+            }
+            
+            createCharts() {
+                // Cumulative Returns Chart
+                this.createReturnsChart();
+                
+                // Hit Rate Chart
+                this.createHitRateChart();
+                
+                // Model Comparison Chart
+                this.createModelComparisonChart();
+                
+                // Bank Performance Chart
+                this.createBankPerformanceChart();
+            }
+            
+            createReturnsChart() {
+                const ctx = document.getElementById('returnsChart').getContext('2d');
+                
+                // Generate cumulative returns data
+                const dates = this.getUniqueDates();
+                const predictedReturns = [];
+                const actualReturns = [];
+                
+                let predCumulative = 0;
+                let actualCumulative = 0;
+                
+                dates.forEach(date => {
+                    let dayPredicted = 0;
+                    let dayActual = 0;
+                    let count = 0;
+                    
+                    this.data.predictions.forEach((pred, key) => {
+                        if (pred.date === date) {
+                            dayPredicted += pred.predicted;
+                            dayActual += pred.actual;
+                            count++;
+                        }
+                    });
+                    
+                    if (count > 0) {
+                        predCumulative += dayPredicted / count;
+                        actualCumulative += dayActual / count;
+                    }
+                    
+                    predictedReturns.push(predCumulative);
+                    actualReturns.push(actualCumulative);
+                });
+                
+                if (this.charts.returns) this.charts.returns.destroy();
+                
+                this.charts.returns = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                                label: 'Predicted Returns',
+                                data: predictedReturns,
+                                borderColor: '#FFD700',
+                                backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                                tension: 0.4,
+                                fill: false
+                            },
+                            {
+                                label: 'Actual Returns',
+                                data: actualReturns,
+                                borderColor: '#00ff88',
+                                backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                                tension: 0.4,
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#fff' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255,255,255,0.1)' }
+                            },
+                            y: {
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255,255,255,0.1)' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            createHitRateChart() {
+                const ctx = document.getElementById('hitRateChart').getContext('2d');
+                const dates = this.getUniqueDates();
+                
+                // Calculate rolling 3-day hit rate
+                const hitRates = [];
+                
+                dates.forEach((date, index) => {
+                    const window = dates.slice(Math.max(0, index - 2), index + 1);
+                    let correct = 0;
+                    let total = 0;
+                    
+                    window.forEach(windowDate => {
+                        this.data.predictions.forEach((pred, key) => {
+                            if (pred.date === windowDate) {
+                                total++;
+                                if (pred.direction_predicted === pred.direction_actual) {
+                                    correct++;
+                                }
+                            }
+                        });
+                    });
+                    
+                    hitRates.push(total > 0 ? (correct / total) * 100 : 0);
+                });
+                
+                if (this.charts.hitRate) this.charts.hitRate.destroy();
+                
+                this.charts.hitRate = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [{
+                            label: 'Hit Rate (%)',
+                            data: hitRates,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#fff' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255,255,255,0.1)' }
+                            },
+                            y: {
+                                min: 0,
+                                max: 100,
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255,255,255,0.1)' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            createModelComparisonChart() {
+                const ctx = document.getElementById('modelComparisonChart').getContext('2d');
+                
+                const modelNames = Array.from(this.data.performance.keys());
+                const accuracyScores = modelNames.map(model => 
+                    this.data.performance.get(model).accuracyScore
+                );
+                
+                if (this.charts.modelComparison) this.charts.modelComparison.destroy();
+                
+                this.charts.modelComparison = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: modelNames,
+                        datasets: [{
+                            label: 'Accuracy Score',
+                            data: accuracyScores,
+                            backgroundColor: [
+                                '#FFD700',
+                                '#FFA500',
+                                '#FF6347',
+                                '#32CD32',
+                                '#1E90FF'
+                            ],
+                            borderColor: 'rgba(255,255,255,0.2)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#fff' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255,255,255,0.1)' }
+                            },
+                            y: {
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255,255,255,0.1)' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            createBankPerformanceChart() {
+                const ctx = document.getElementById('bankPerformanceChart').getContext('2d');
+                
+                // Calculate bank performance
+                const bankPerformance = {};
+                this.data.banks.forEach(bank => {
+                    bankPerformance[bank] = { totalReturn: 0, count: 0 };
+                });
+                
+                this.data.predictions.forEach((pred, key) => {
+                    bankPerformance[pred.bank].totalReturn += pred.actual;
+                    bankPerformance[pred.bank].count++;
+                });
+                
+                const bankNames = Object.keys(bankPerformance);
+                const avgReturns = bankNames.map(bank => 
+                    bankPerformance[bank].count > 0 
+                        ? bankPerformance[bank].totalReturn / bankPerformance[bank].count 
+                        : 0
+                );
+                
+                if (this.charts.bankPerformance) this.charts.bankPerformance.destroy();
+                
+                this.charts.bankPerformance = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: bankNames,
+                        datasets: [{
+                            label: 'Avg Return (%)',
+                            data: avgReturns,
+                            borderColor: '#00ff88',
+                            backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                            pointBackgroundColor: '#00ff88'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#fff' }
+                            }
+                        },
+                        scales: {
+                            r: {
+                                ticks: { color: '#fff' },
+                                grid: { color: 'rgba(255,255,255,0.2)' },
+                                pointLabels: { color: '#fff' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            createModelCards() {
+                const grid = document.getElementById('performanceGrid');
+                grid.innerHTML = '';
+                
+                // Sort models by accuracy score
+                const sortedModels = Array.from(this.data.performance.entries())
+                    .sort((a, b) => b[1].accuracyScore - a[1].accuracyScore);
+                
+                sortedModels.forEach(([model, perf], index) => {
+                    const card = document.createElement('div');
+                    card.className = 'model-card';
+                    card.innerHTML = `
+                        <div class="model-header">
+                            <div class="model-name">${model}</div>
+                            <div class="model-rank">#${index + 1}</div>
+                        </div>
+                        <div class="metric-row">
+                            <span>Hit Rate:</span>
+                            <span>${perf.hitRate.toFixed(1)}%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Accuracy Score:</span>
+                            <span>${perf.accuracyScore.toFixed(1)}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Total Return:</span>
+                            <span>${perf.totalReturn.toFixed(2)}%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Sharpe Ratio:</span>
+                            <span>${perf.sharpeRatio.toFixed(3)}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>MAPE:</span>
+                            <span>${perf.mape.toFixed(2)}%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Volatility:</span>
+                            <span>${perf.volatility.toFixed(2)}%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Predictions:</span>
+                            <span>${perf.totalPredictions}</span>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+            
+            getUniqueDates() {
+                const dates = new Set();
+                this.data.predictions.forEach((pred, key) => {
+                    dates.add(pred.date);
+                });
+                return Array.from(dates).sort();
+            }
+            
+            log(message) {
+                const logContainer = document.getElementById('logContainer');
+                const timestamp = new Date().toLocaleTimeString('de-DE');
+                const logEntry = document.createElement('div');
+                logEntry.textContent = `[${timestamp}] ${message}`;
+                logContainer.appendChild(logEntry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+            
+            // Backfill System Functions
+            async startBackfill() {
+                if (this.isProcessing) {
+                    this.log('⚠️ Backfill bereits in Bearbeitung...');
+                    return;
+                }
+                
+                this.isProcessing = true;
+                this.log('🚀 Backfill-Prozess gestartet...');
+                
+                const missingDays = await this.findMissingDays();
+                if (missingDays.length === 0) {
+                    this.log('✅ Keine fehlenden Tage gefunden');
+                    this.isProcessing = false;
+                    return;
+                }
+                
+                this.log(`📅 ${missingDays.length} fehlende Tage gefunden: ${missingDays.join(', ')}`);
+                
+                for (let i = 0; i < missingDays.length; i++) {
+                    const day = missingDays[i];
+                    const progress = ((i + 1) / missingDays.length) * 100;
+                    
+                    document.getElementById('backfillProgress').style.width = progress + '%';
+                    document.getElementById('backfillStatus').innerHTML = 
+                        `<div class="alert alert-warning">Bearbeite Tag ${i + 1}/${missingDays.length}: ${day}</div>`;
+                    
+                    await this.processDay(day);
+                    await this.sleep(500); // Simulate processing time
+                }
+                
+                document.getElementById('backfillProgress').style.width = '100%';
+                document.getElementById('backfillStatus').innerHTML = 
+                    `<div class="alert alert-success">✅ Backfill erfolgreich abgeschlossen! ${missingDays.length} Tage verarbeitet.</div>`;
+                
+                this.calculatePerformanceMetrics();
+                this.updateDashboard();
+                this.isProcessing = false;
+                
+                this.log(`✅ Backfill abgeschlossen: ${missingDays.length} Tage verarbeitet`);
+            }
+            
+            async findMissingDays() {
+                // Simulate finding missing trading days
+                const startDate = new Date('2025-08-01');
+                const endDate = new Date('2025-08-18');
+                const existingDates = new Set(this.getUniqueDates());
+                const missingDays = [];
+                
+                for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+                    // Skip weekends
+                    if (date.getDay() === 0 || date.getDay() === 6) continue;
+                    
+                    const dateStr = date.toISOString().split('T')[0];
+                    if (!existingDates.has(dateStr)) {
+                        missingDays.push(dateStr);
+                    }
+                }
+                
+                this.log(`🔍 Missing Days Check: ${missingDays.length} fehlende Handelstage`);
+                return missingDays;
+            }
+            
+            async processDay(dateStr) {
+                this.log(`📊 Verarbeite ${dateStr}...`);
+                
+                // Simulate loading enhanced features up to previous day
+                const prevDay = this.getPreviousBusinessDay(dateStr);
+                this.log(`📈 Lade Enhanced Features bis ${prevDay}`);
+                
+                // Generate predictions for this day
+                this.data.banks.forEach(bank => {
+                    this.data.models.forEach(model => {
+                        const key = `${dateStr}_${bank}_${model}`;
+                        
+                        // Simulate prediction generation
+                        const predicted = (Math.random() - 0.5) * 8;
+                        const actual = predicted * 0.7 + (Math.random() - 0.5) * 3;
+                        
+                        this.data.predictions.set(key, {
+                            date: dateStr,
+                            bank: bank,
+                            model: model,
+                            predicted: predicted,
+                            actual: actual,
+                            direction_predicted: predicted > 0 ? 'bullish' : 'bearish',
+                            direction_actual: actual > 0 ? 'bullish' : 'bearish',
+                            backfilled: true
+                        });
+                    });
+                });
+                
+                this.log(`✅ ${dateStr} verarbeitet: ${this.data.banks.length * this.data.models.length} Predictions`);
+            }
+            
+            getPreviousBusinessDay(dateStr) {
+                const date = new Date(dateStr);
+                date.setDate(date.getDate() - 1);
+                
+                // Skip weekends
+                while (date.getDay() === 0 || date.getDay() === 6) {
+                    date.setDate(date.getDate() - 1);
+                }
+                
+                return date.toISOString().split('T')[0];
+            }
+            
+            async validateData() {
+                this.log('🔍 Starte Datenvalidierung...');
+                
+                const validation = {
+                    totalPredictions: this.data.predictions.size,
+                    dateRange: {
+                        start: this.data.timeRange.start?.toISOString().split('T')[0],
+                        end: this.data.timeRange.end?.toISOString().split('T')[0]
+                    },
+                    modelsCount: this.data.models.length,
+                    banksCount: this.data.banks.length,
+                    missingData: [],
+                    anomalies: []
+                };
+                
+                // Check for missing data
+                const dates = this.getUniqueDates();
+                dates.forEach(date => {
+                    this.data.banks.forEach(bank => {
+                        this.data.models.forEach(model => {
+                            const key = `${date}_${bank}_${model}`;
+                            if (!this.data.predictions.has(key)) {
+                                validation.missingData.push(key);
+                            }
+                        });
+                    });
+                });
+                
+                // Check for anomalies (extreme values)
+                this.data.predictions.forEach((pred, key) => {
+                    if (Math.abs(pred.predicted) > 10 || Math.abs(pred.actual) > 10) {
+                        validation.anomalies.push({
+                            key: key,
+                            predicted: pred.predicted,
+                            actual: pred.actual
+                        });
+                    }
+                });
+                
+                // Display validation results
+                let statusHtml = '<div class="alert alert-success">';
+                statusHtml += `✅ Validierung abgeschlossen:<br/>`;
+                statusHtml += `📊 ${validation.totalPredictions} Total Predictions<br/>`;
+                statusHtml += `📅 Zeitraum: ${validation.dateRange.start} bis ${validation.dateRange.end}<br/>`;
+                statusHtml += `🤖 ${validation.modelsCount} Modelle, 🏦 ${validation.banksCount} Banken<br/>`;
+                
+                if (validation.missingData.length > 0) {
+                    statusHtml += `⚠️ ${validation.missingData.length} fehlende Datenpunkte<br/>`;
+                }
+                
+                if (validation.anomalies.length > 0) {
+                    statusHtml += `🚨 ${validation.anomalies.length} Anomalien gefunden<br/>`;
+                }
+                
+                statusHtml += '</div>';
+                
+                document.getElementById('backfillStatus').innerHTML = statusHtml;
+                
+                this.log(`✅ Validierung abgeschlossen: ${validation.totalPredictions} Predictions, ${validation.missingData.length} Missing, ${validation.anomalies.length} Anomalien`);
+                
+                return validation;
+            }
+            
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            
+            // Export Functions
+            exportResults() {
+                this.log('💾 Exportiere Ergebnisse...');
+                
+                const exportData = {
+                    timestamp: new Date().toISOString(),
+                    summary: {
+                        totalPredictions: this.data.predictions.size,
+                        timeRange: this.data.timeRange,
+                        avgHitRate: Array.from(this.data.performance.values())
+                            .reduce((sum, perf) => sum + perf.hitRate, 0) / this.data.models.length,
+                        totalReturn: Array.from(this.data.performance.values())
+                            .reduce((sum, perf) => sum + perf.totalReturn, 0)
+                    },
+                    modelPerformance: Object.fromEntries(this.data.performance),
+                    predictions: Object.fromEntries(this.data.predictions)
+                };
+                
+                // Create downloadable JSON
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `TVS_Export_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                
+                URL.revokeObjectURL(url);
+                
+                this.log('💾 Export erfolgreich erstellt');
+            }
+            
+            // Advanced Analysis Functions
+            performTimeSeriesAnalysis() {
+                this.log('📈 Starte Zeitreihenanalyse...');
+                
+                const dates = this.getUniqueDates();
+                const analysis = {
+                    trend: {},
+                    volatility: {},
+                    seasonality: {}
+                };
+                
+                this.data.models.forEach(model => {
+                    const modelData = [];
+                    const hitRates = [];
+                    
+                    dates.forEach(date => {
+                        let dayReturn = 0;
+                        let dayHits = 0;
+                        let dayTotal = 0;
+                        
+                        this.data.predictions.forEach((pred, key) => {
+                            if (pred.date === date && pred.model === model) {
+                                dayReturn += pred.actual;
+                                dayTotal++;
+                                if (pred.direction_predicted === pred.direction_actual) {
+                                    dayHits++;
+                                }
+                            }
+                        });
+                        
+                        if (dayTotal > 0) {
+                            modelData.push(dayReturn / dayTotal);
+                            hitRates.push((dayHits / dayTotal) * 100);
+                        }
+                    });
+                    
+                    // Calculate trend (linear regression slope)
+                    const trend = this.calculateTrend(modelData);
+                    const volatility = this.calculateStandardDeviation(modelData);
+                    
+                    analysis.trend[model] = trend;
+                    analysis.volatility[model] = volatility;
+                    
+                    // Detect if model is improving over time
+                    const recentPerf = hitRates.slice(-5).reduce((a, b) => a + b, 0) / 5;
+                    const earlyPerf = hitRates.slice(0, 5).reduce((a, b) => a + b, 0) / 5;
+                    analysis.seasonality[model] = recentPerf - earlyPerf;
+                });
+                
+                this.log('📈 Zeitreihenanalyse abgeschlossen');
+                return analysis;
+            }
+            
+            calculateTrend(data) {
+                const n = data.length;
+                const x = Array.from({length: n}, (_, i) => i);
+                const sumX = x.reduce((a, b) => a + b, 0);
+                const sumY = data.reduce((a, b) => a + b, 0);
+                const sumXY = x.reduce((sum, xi, i) => sum + xi * data[i], 0);
+                const sumXX = x.reduce((sum, xi) => sum + xi * xi, 0);
+                
+                return (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+            }
+            
+            // Risk Analysis
+            calculateRiskMetrics() {
+                const riskMetrics = {};
+                
+                this.data.models.forEach(model => {
+                    const returns = [];
+                    this.data.predictions.forEach((pred, key) => {
+                        if (pred.model === model) {
+                            returns.push(pred.actual);
+                        }
+                    });
+                    
+                    if (returns.length > 0) {
+                        const sortedReturns = returns.sort((a, b) => a - b);
+                        const var95 = sortedReturns[Math.floor(returns.length * 0.05)];
+                        const var99 = sortedReturns[Math.floor(returns.length * 0.01)];
+                        const maxDrawdown = this.calculateMaxDrawdown(returns);
+                        
+                        riskMetrics[model] = {
+                            var95: var95,
+                            var99: var99,
+                            maxDrawdown: maxDrawdown,
+                            riskAdjustedReturn: this.data.performance.get(model).sharpeRatio
+                        };
+                    }
+                });
+                
+                return riskMetrics;
+            }
+            
+            calculateMaxDrawdown(returns) {
+                let maxDrawdown = 0;
+                let peak = returns[0];
+                let cumulative = 0;
+                
+                returns.forEach(ret => {
+                    cumulative += ret;
+                    if (cumulative > peak) {
+                        peak = cumulative;
+                    }
+                    const drawdown = (peak - cumulative) / peak * 100;
+                    if (drawdown > maxDrawdown) {
+                        maxDrawdown = drawdown;
+                    }
+                });
+                
+                return maxDrawdown;
+            }
+        }
+        
+        // Initialize TVS
+        let tvs;
+        
+        // UI Control Functions
+        function startBackfill() {
+            tvs.startBackfill();
+        }
+        
+        function checkMissingDays() {
+            tvs.findMissingDays().then(missingDays => {
+                if (missingDays.length === 0) {
+                    document.getElementById('backfillStatus').innerHTML = 
+                        '<div class="alert alert-success">✅ Keine fehlenden Tage gefunden</div>';
+                } else {
+                    document.getElementById('backfillStatus').innerHTML = 
+                        `<div class="alert alert-warning">⚠️ ${missingDays.length} fehlende Tage: ${missingDays.join(', ')}</div>`;
+                }
+            });
+        }
+        
+        function validateData() {
+            tvs.validateData();
+        }
+        
+        function exportResults() {
+            tvs.exportResults();
+        }
+        
+        function showOverview() {
+            document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show main charts
+            document.getElementById('mainContent').style.display = 'grid';
+            document.getElementById('performanceGrid').style.display = 'grid';
+        }
+        
+        function showModels() {
+            document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Create detailed model analysis
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <div class="chart-container">
+                    <div class="chart-title">🏆 Model Rankings</div>
+                    <canvas id="modelRankingChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">📊 Risk-Return Analysis</div>
+                    <canvas id="riskReturnChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">📈 Performance Trends</div>
+                    <canvas id="trendsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">⚖️ Stability Index</div>
+                    <canvas id="stabilityChart"></canvas>
+                </div>
+            `;
+            
+            document.getElementById('performanceGrid').style.display = 'grid';
+            
+            // Create specialized model charts
+            setTimeout(() => {
+                createModelRankingChart();
+                createRiskReturnChart();
+                createTrendsChart();
+                createStabilityChart();
+            }, 100);
+        }
+        
+        function showBanks() {
+            document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Create bank-specific analysis
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <div class="chart-container">
+                    <div class="chart-title">🏦 Bank Returns Comparison</div>
+                    <canvas id="bankReturnsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">📊 Prediction Accuracy by Bank</div>
+                    <canvas id="bankAccuracyChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">⚡ Volatility Analysis</div>
+                    <canvas id="bankVolatilityChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">🎯 Best Performing Pairs</div>
+                    <canvas id="bankModelChart"></canvas>
+                </div>
+            `;
+            
+            document.getElementById('performanceGrid').style.display = 'none';
+            
+            setTimeout(() => {
+                createBankAnalysisCharts();
+            }, 100);
+        }
+        
+        function showTimeAnalysis() {
+            document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Create time-based analysis
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <div class="chart-container">
+                    <div class="chart-title">📅 Daily Performance Patterns</div>
+                    <canvas id="dailyPatternsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">🔄 Rolling Performance</div>
+                    <canvas id="rollingPerfChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">📈 Learning Curves</div>
+                    <canvas id="learningCurvesChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">⏰ Time-based Hit Rates</div>
+                    <canvas id="timeHitRatesChart"></canvas>
+                </div>
+            `;
+            
+            document.getElementById('performanceGrid').style.display = 'none';
+            
+            setTimeout(() => {
+                createTimeAnalysisCharts();
+            }, 100);
+        }
+        
+        // Specialized Chart Creation Functions
+        function createModelRankingChart() {
+            const ctx = document.getElementById('modelRankingChart').getContext('2d');
+            
+            const sortedModels = Array.from(tvs.data.performance.entries())
+                .sort((a, b) => b[1].accuracyScore - a[1].accuracyScore);
+            
+            new Chart(ctx, {
+                type: 'horizontalBar',
+                data: {
+                    labels: sortedModels.map(([model]) => model),
+                    datasets: [{
+                        label: 'Accuracy Score',
+                        data: sortedModels.map(([, perf]) => perf.accuracyScore),
+                        backgroundColor: ['#FFD700', '#C0C0C0', '#CD7F32', '#87CEEB', '#98FB98']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
+                }
+            });
+        }
+        
+        function createRiskReturnChart() {
+            const ctx = document.getElementById('riskReturnChart').getContext('2d');
+            const riskMetrics = tvs.calculateRiskMetrics();
+            
+            const data = Array.from(tvs.data.performance.entries()).map(([model, perf]) => ({
+                x: perf.volatility,
+                y: perf.avgReturn,
+                label: model
+            }));
+            
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Risk-Return Profile',
+                        data: data,
+                        backgroundColor: '#FFD700'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { 
+                        legend: { labels: { color: '#fff' } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${data[context.dataIndex].label}: Risk ${context.parsed.x.toFixed(2)}%, Return ${context.parsed.y.toFixed(2)}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            title: { display: true, text: 'Volatility (%)', color: '#fff' },
+                            ticks: { color: '#fff' }, 
+                            grid: { color: 'rgba(255,255,255,0.1)' } 
+                        },
+                        y: { 
+                            title: { display: true, text: 'Average Return (%)', color: '#fff' },
+                            ticks: { color: '#fff' }, 
+                            grid: { color: 'rgba(255,255,255,0.1)' } 
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createTrendsChart() {
+            const ctx = document.getElementById('trendsChart').getContext('2d');
+            const trendAnalysis = tvs.performTimeSeriesAnalysis();
+            
+            const models = Object.keys(trendAnalysis.trend);
+            const trends = models.map(model => trendAnalysis.trend[model] * 100);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: models,
+                    datasets: [{
+                        label: 'Performance Trend (%/day)',
+                        data: trends,
+                        backgroundColor: trends.map(t => t > 0 ? '#00ff88' : '#ff6b6b')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
+                }
+            });
+        }
+        
+        function createStabilityChart() {
+            const ctx = document.getElementById('stabilityChart').getContext('2d');
+            
+            const models = Array.from(tvs.data.performance.keys());
+            const stability = models.map(model => {
+                const perf = tvs.data.performance.get(model);
+                return Math.max(0, 100 - perf.volatility * 10); // Stability index
+            });
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: models,
+                    datasets: [{
+                        data: stability,
+                        backgroundColor: ['#FFD700', '#FFA500', '#FF6347', '#32CD32', '#1E90FF']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } }
+                }
+            });
+        }
+        
+        function createBankAnalysisCharts() {
+            // Bank Returns Chart
+            const ctx1 = document.getElementById('bankReturnsChart').getContext('2d');
+            
+            const bankReturns = {};
+            tvs.data.banks.forEach(bank => {
+                bankReturns[bank] = 0;
+                let count = 0;
+                tvs.data.predictions.forEach((pred) => {
+                    if (pred.bank === bank) {
+                        bankReturns[bank] += pred.actual;
+                        count++;
+                    }
+                });
+                bankReturns[bank] = count > 0 ? bankReturns[bank] / count : 0;
+            });
+            
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(bankReturns),
+                    datasets: [{
+                        label: 'Average Return (%)',
+                        data: Object.values(bankReturns),
+                        backgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
+                }
+            });
+            
+            // Bank Accuracy Chart
+            const ctx2 = document.getElementById('bankAccuracyChart').getContext('2d');
+            
+            const bankAccuracy = {};
+            tvs.data.banks.forEach(bank => {
+                let correct = 0;
+                let total = 0;
+                tvs.data.predictions.forEach((pred) => {
+                    if (pred.bank === bank) {
+                        total++;
+                        if (pred.direction_predicted === pred.direction_actual) {
+                            correct++;
+                        }
+                    }
+                });
+                bankAccuracy[bank] = total > 0 ? (correct / total) * 100 : 0;
+            });
+            
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(bankAccuracy),
+                    datasets: [{
+                        label: 'Hit Rate (%)',
+                        data: Object.values(bankAccuracy),
+                        borderColor: '#00ff88',
+                        fill: false,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
+                }
+            });
+            
+            // Volatility Chart
+            const ctx3 = document.getElementById('bankVolatilityChart').getContext('2d');
+            
+            const bankVolatility = {};
+            tvs.data.banks.forEach(bank => {
+                const returns = [];
+                tvs.data.predictions.forEach((pred) => {
+                    if (pred.bank === bank) {
+                        returns.push(pred.actual);
+                    }
+                });
+                bankVolatility[bank] = returns.length > 0 ? tvs.calculateStandardDeviation(returns) : 0;
+            });
+            
+            new Chart(ctx3, {
+                type: 'radar',
+                data: {
+                    labels: Object.keys(bankVolatility),
+                    datasets: [{
+                        label: 'Volatility (%)',
+                        data: Object.values(bankVolatility),
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        r: {
+                            ticks: { color: '#fff' },
+                            grid: { color: 'rgba(255,255,255,0.2)' },
+                            pointLabels: { color: '#fff' }
+                        }
+                    }
+                }
+            });
+            
+            // Best Model-Bank Combinations
+            const ctx4 = document.getElementById('bankModelChart').getContext('2d');
+            
+            const combinations = [];
+            tvs.data.banks.forEach(bank => {
+                tvs.data.models.forEach(model => {
+                    let totalReturn = 0;
+                    let count = 0;
+                    tvs.data.predictions.forEach((pred) => {
+                        if (pred.bank === bank && pred.model === model) {
+                            totalReturn += pred.actual;
+                            count++;
+                        }
+                    });
+                    if (count > 0) {
+                        combinations.push({
+                            label: `${bank}-${model}`,
+                            return: totalReturn / count
+                        });
+                    }
+                });
+            });
+            
+            combinations.sort((a, b) => b.return - a.return);
+            const top10 = combinations.slice(0, 10);
+            
+            new Chart(ctx4, {
+                type: 'horizontalBar',
+                data: {
+                    labels: top10.map(c => c.label),
+                    datasets: [{
+                        label: 'Average Return (%)',
+                        data: top10.map(c => c.return),
+                        backgroundColor: '#FFD700'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
+                }
+            });
+        }
+        
+        function createTimeAnalysisCharts() {
+            // Daily Performance Patterns
+            const ctx1 = document.getElementById('dailyPatternsChart').getContext('2d');
+            
+            const dailyPerformance = {};
+            const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
+            
+            dayNames.forEach(day => dailyPerformance[day] = []);
+            
+            tvs.data.predictions.forEach((pred) => {
+                const date = new Date(pred.date);
+                const dayIndex = date.getDay();
+                if (dayIndex >= 1 && dayIndex <= 5) { // Mon-Fri
+                    const dayName = dayNames[dayIndex - 1];
+                    dailyPerformance[dayName].push(pred.actual);
+                }
+            });
+            
+            const avgDailyPerf = {};
+            Object.keys(dailyPerformance).forEach(day => {
+                const returns = dailyPerformance[day];
+                avgDailyPerf[day] = returns.length > 0 ? 
+                    returns.reduce((a, b) => a + b, 0) / returns.length : 0;
+            });
+            
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(avgDailyPerf),
+                    datasets: [{
+                        label: 'Average Daily Return (%)',
+                        data: Object.values(avgDailyPerf),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
+                }
+            });
+            
+            // Rolling Performance
+            const ctx2 = document.getElementById('rollingPerfChart').getContext('2d');
+            
+            const dates = tvs.getUniqueDates();
+            const rollingReturns = [];
+            const rollingHitRates = [];
+            
+            for (let i = 2; i < dates.length; i++) {
+                const window = dates.slice(i - 2, i + 1);
+                let windowReturn = 0;
+                let windowHits = 0;
+                let windowTotal = 0;
+                
+                window.forEach(date => {
+                    tvs.data.predictions.forEach((pred) => {
+                        if (pred.date === date) {
+                            windowReturn += pred.actual;
+                            windowTotal++;
+                            if (pred.direction_predicted === pred.direction_actual) {
+                                windowHits++;
+                            }
+                        }
+                    });
+                });
+                
+                rollingReturns.push(windowTotal > 0 ? windowReturn / windowTotal : 0);
+                rollingHitRates.push(windowTotal > 0 ? (windowHits / windowTotal) * 100 : 0);
+            }
+            
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: dates.slice(2),
+                    datasets: [
+                        {
+                            label: 'Rolling 3-Day Return (%)',
+                            data: rollingReturns,
+                            borderColor: '#00ff88',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Rolling 3-Day Hit Rate (%)',
+                            data: rollingHitRates,
+                            borderColor: '#FFD700',
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: { color: '#fff' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: { color: '#fff' },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+            
+            // Learning Curves
+            const ctx3 = document.getElementById('learningCurvesChart').getContext('2d');
+            
+            const datasets = [];
+            const colors = ['#FFD700', '#FFA500', '#FF6347', '#32CD32', '#1E90FF'];
+            
+            tvs.data.models.forEach((model, index) => {
+                const modelCurve = [];
+                let cumulativeReturn = 0;
+                
+                dates.forEach(date => {
+                    let dayReturn = 0;
+                    let count = 0;
+                    
+                    tvs.data.predictions.forEach((pred) => {
+                        if (pred.date === date && pred.model === model) {
+                            dayReturn += pred.actual;
+                            count++;
+                        }
+                    });
+                    
+                    if (count > 0) {
+                        cumulativeReturn += dayReturn / count;
+                    }
+                    modelCurve.push(cumulativeReturn);
+                });
+                
+                datasets.push({
+                    label: model,
+                    data: modelCurve,
+                    borderColor: colors[index],
+                    fill: false,
+                    tension: 0.4
+                });
+            });
+            
+            new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
+                }
+            });
+            
+            // Time-based Hit Rates
+            const ctx4 = document.getElementById('timeHitRatesChart').getContext('2d');
+            
+            const timeHitRates = {};
+            
+            tvs.data.models.forEach(model => {
+                const modelHitRates = [];
+                
+                dates.forEach(date => {
+                    let hits = 0;
+                    let total = 0;
+                    
+                    tvs.data.predictions.forEach((pred) => {
+                        if (pred.date === date && pred.model === model) {
+                            total++;
+                            if (pred.direction_predicted === pred.direction_actual) {
+                                hits++;
+                            }
+                        }
+                    });
+                    
+                    modelHitRates.push(total > 0 ? (hits / total) * 100 : 0);
+                });
+                
+                timeHitRates[model] = modelHitRates;
+            });
+            
+            const hitRateDatasets = [];
+            tvs.data.models.forEach((model, index) => {
+                hitRateDatasets.push({
+                    label: model + ' Hit Rate',
+                    data: timeHitRates[model],
+                    borderColor: colors[index],
+                    backgroundColor: colors[index] + '20',
+                    fill: false,
+                    tension: 0.4
+                });
+            });
+            
+            new Chart(ctx4, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: hitRateDatasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { 
+                            min: 0,
+                            max: 100,
+                            ticks: { color: '#fff' }, 
+                            grid: { color: 'rgba(255,255,255,0.1)' } 
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Advanced Trading Insights
+        function generateTradingRecommendations() {
+            const recommendations = [];
+            
+            // Best performing model
+            const sortedModels = Array.from(tvs.data.performance.entries())
+                .sort((a, b) => b[1].accuracyScore - a[1].accuracyScore);
+            
+            const bestModel = sortedModels[0];
+            recommendations.push({
+                type: 'success',
+                title: 'Best Model',
+                message: `${bestModel[0]} zeigt die beste Performance mit ${bestModel[1].accuracyScore.toFixed(1)}% Accuracy Score`
+            });
+            
+            // Risk warning
+            const riskMetrics = tvs.calculateRiskMetrics();
+            const highRiskModels = Object.entries(riskMetrics)
+                .filter(([model, metrics]) => metrics.maxDrawdown > 5);
+            
+            if (highRiskModels.length > 0) {
+                recommendations.push({
+                    type: 'warning',
+                    title: 'Risk Warning',
+                    message: `Hohe Drawdowns bei: ${highRiskModels.map(([model]) => model).join(', ')}`
+                });
+            }
+            
+            // Trend analysis
+            const trendAnalysis = tvs.performTimeSeriesAnalysis();
+            const improvingModels = Object.entries(trendAnalysis.trend)
+                .filter(([model, trend]) => trend > 0.01)
+                .map(([model]) => model);
+            
+            if (improvingModels.length > 0) {
+                recommendations.push({
+                    type: 'success',
+                    title: 'Improving Models',
+                    message: `Positive Trends bei: ${improvingModels.join(', ')}`
+                });
+            }
+            
+            return recommendations;
+        }
+        
+        function displayRecommendations() {
+            const recommendations = generateTradingRecommendations();
+            const container = document.createElement('div');
+            container.style.position = 'fixed';
+            container.style.top = '20px';
+            container.style.right = '20px';
+            container.style.zIndex = '1000';
+            container.style.maxWidth = '300px';
+            
+            recommendations.forEach(rec => {
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${rec.type}`;
+                alert.innerHTML = `<strong>${rec.title}:</strong> ${rec.message}`;
+                container.appendChild(alert);
+            });
+            
+            document.body.appendChild(container);
+            
+            // Auto remove after 10 seconds
+            setTimeout(() => {
+                document.body.removeChild(container);
+            }, 10000);
+        }
+        
+        // Real-time simulation
+        function simulateRealTimeUpdates() {
+            setInterval(() => {
+                // Simulate new data point
+                const today = new Date().toISOString().split('T')[0];
+                const randomBank = tvs.data.banks[Math.floor(Math.random() * tvs.data.banks.length)];
+                const randomModel = tvs.data.models[Math.floor(Math.random() * tvs.data.models.length)];
+                
+                const key = `${today}_${randomBank}_${randomModel}_realtime`;
+                
+                if (!tvs.data.predictions.has(key)) {
+                    const predicted = (Math.random() - 0.5) * 6;
+                    const actual = predicted * 0.8 + (Math.random() - 0.5) * 2;
+                    
+                    tvs.data.predictions.set(key, {
+                        date: today,
+                        bank: randomBank,
+                        model: randomModel,
+                        predicted: predicted,
+                        actual: actual,
+                        direction_predicted: predicted > 0 ? 'bullish' : 'bearish',
+                        direction_actual: actual > 0 ? 'bullish' : 'bearish',
+                        realtime: true
+                    });
+                    
+                    // Update dashboard
+                    tvs.calculatePerformanceMetrics();
+                    tvs.updateDashboard();
+                    
+                    tvs.log(`🔴 Live Update: ${randomModel} → ${randomBank} (${actual.toFixed(2)}%)`);
+                    
+                    // Update timestamp
+                    document.getElementById('updateTime').textContent = new Date().toLocaleString('de-DE');
+                }
+            }, 30000); // Every 30 seconds
+        }
+        
+        // Paper Trading Simulator
+        class PaperTradingSimulator {
+            constructor(initialCapital = 100000) {
+                this.capital = initialCapital;
+                this.initialCapital = initialCapital;
+                this.positions = new Map();
+                this.trades = [];
+                this.currentPortfolioValue = initialCapital;
+            }
+            
+            executeTradeBasedOnPrediction(prediction, position_size = 0.1) {
+                const trade = {
+                    date: prediction.date,
+                    bank: prediction.bank,
+                    model: prediction.model,
+                    predicted: prediction.predicted,
+                    actual: prediction.actual,
+                    position_size: position_size,
+                    capital_before: this.capital
+                };
+                
+                // Calculate position value
+                const positionValue = this.capital * position_size;
+                
+                // Execute trade based on prediction direction
+                if (prediction.direction_predicted === 'bullish') {
+                    // Long position
+                    const return_pct = prediction.actual / 100;
+                    const profit_loss = positionValue * return_pct;
+                    this.capital += profit_loss;
+                    
+                    trade.direction = 'long';
+                    trade.profit_loss = profit_loss;
+                } else {
+                    // Short position (inverse of actual return)
+                    const return_pct = -prediction.actual / 100;
+                    const profit_loss = positionValue * return_pct;
+                    this.capital += profit_loss;
+                    
+                    trade.direction = 'short';
+                    trade.profit_loss = profit_loss;
+                }
+                
+                trade.capital_after = this.capital;
+                trade.total_return = ((this.capital - this.initialCapital) / this.initialCapital) * 100;
+                
+                this.trades.push(trade);
+                this.currentPortfolioValue = this.capital;
+                
+                return trade;
+            }
+            
+            getPerformanceSummary() {
+                if (this.trades.length === 0) return null;
+                
+                const totalReturn = ((this.capital - this.initialCapital) / this.initialCapital) * 100;
+                const trades = this.trades.length;
+                const winningTrades = this.trades.filter(t => t.profit_loss > 0).length;
+                const winRate = (winningTrades / trades) * 100;
+                
+                const returns = this.trades.map(t => (t.profit_loss / (t.capital_before * 0.1)) * 100);
+                const avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
+                const volatility = tvs.calculateStandardDeviation(returns);
+                const sharpeRatio = volatility > 0 ? (avgReturn / volatility) * Math.sqrt(252) : 0;
+                
+                const maxCapital = Math.max(...this.trades.map(t => t.capital_after));
+                const maxDrawdown = ((maxCapital - this.capital) / maxCapital) * 100;
+                
+                return {
+                    totalReturn,
+                    trades,
+                    winRate,
+                    avgReturn,
+                    sharpeRatio,
+                    maxDrawdown,
+                    currentCapital: this.capital,
+                    initialCapital: this.initialCapital
+                };
+            }
+        }
+        
+        // Initialize Paper Trading
+        function initializePaperTrading() {
+            const simulator = new PaperTradingSimulator(100000);
+            
+            // Execute trades for all predictions
+            tvs.data.predictions.forEach((pred) => {
+                simulator.executeTradeBasedOnPrediction(pred, 0.05); // 5% position size
+            });
+            
+            const summary = simulator.getPerformanceSummary();
+            
+            if (summary) {
+                tvs.log(`💰 Paper Trading Summary:`);
+                tvs.log(`📈 Total Return: ${summary.totalReturn.toFixed(2)}%`);
+                tvs.log(`🎯 Win Rate: ${summary.winRate.toFixed(1)}%`);
+                tvs.log(`💵 Final Capital: ${summary.currentCapital.toLocaleString()}`);
+                tvs.log(`📊 Sharpe Ratio: ${summary.sharpeRatio.toFixed(3)}`);
+                tvs.log(`📉 Max Drawdown: ${summary.maxDrawdown.toFixed(2)}%`);
+                
+                // Update status card with paper trading results
+                const paperTradingCard = document.createElement('div');
+                paperTradingCard.className = 'status-card';
+                paperTradingCard.innerHTML = `
+                    <div class="status-value">${summary.currentCapital.toLocaleString()}</div>
+                    <div class="status-label">Paper Trading Value</div>
+                `;
+                document.querySelector('.status-bar').appendChild(paperTradingCard);
+            }
+            
+            return simulator;
+        }
+        
+        // Enhanced Alert System
+        function createAdvancedAlerts() {
+            const alerts = [];
+            
+            // Performance degradation alert
+            const recentPerformance = Array.from(tvs.data.performance.values())
+                .map(p => p.hitRate)
+                .reduce((a, b) => a + b, 0) / tvs.data.models.length;
+            
+            if (recentPerformance < 45) {
+                alerts.push({
+                    level: 'error',
+                    title: 'Performance Alert',
+                    message: `Hit Rate unter 45% gefallen (${recentPerformance.toFixed(1)}%)`
+                });
+            }
+            
+            // Model divergence alert
+            const modelPerfs = Array.from(tvs.data.performance.values()).map(p => p.accuracyScore);
+            const perfStd = tvs.calculateStandardDeviation(modelPerfs);
+            
+            if (perfStd > 15) {
+                alerts.push({
+                    level: 'warning',
+                    title: 'Model Divergence',
+                    message: `Hohe Streuung zwischen Modellen (σ=${perfStd.toFixed(1)})`
+                });
+            }
+            
+            // Data quality alert
+            const totalPredictions = tvs.data.predictions.size;
+            const expectedPredictions = tvs.getUniqueDates().length * tvs.data.banks.length * tvs.data.models.length;
+            const completeness = (totalPredictions / expectedPredictions) * 100;
+            
+            if (completeness < 95) {
+                alerts.push({
+                    level: 'warning',
+                    title: 'Data Completeness',
+                    message: `Datenvollständigkeit nur ${completeness.toFixed(1)}%`
+                });
+            }
+            
+            return alerts;
+        }
+        
+        // Auto-refresh system
+        function setupAutoRefresh() {
+            setInterval(() => {
+                const missingDays = tvs.findMissingDays();
+                missingDays.then(days => {
+                    if (days.length > 0 && !tvs.isProcessing) {
+                        tvs.log(`🔄 Auto-Refresh: ${days.length} neue Tage gefunden`);
+                        tvs.startBackfill();
+                    }
+                });
+            }, 300000); // Every 5 minutes
+        }
+        
+        // Initialize TVS when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            tvs = new TradingValidationSystem();
+            
+            // Initialize additional features
+            setTimeout(() => {
+                initializePaperTrading();
+                displayRecommendations();
+                simulateRealTimeUpdates();
+                setupAutoRefresh();
+                
+                tvs.log('🎉 TVS vollständig initialisiert mit allen Features');
+            }, 2000);
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        showOverview();
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        showModels();
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        showBanks();
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        showTimeAnalysis();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        exportResults();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        startBackfill();
+                        break;
+                }
+            }
+        });
+        
+        // Service Worker for offline functionality (optional)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed');
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

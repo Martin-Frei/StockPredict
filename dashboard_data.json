@@ -1,0 +1,270 @@
+{
+  "prophet": {
+    "available": true,
+    "portfolio_return": -0.030782808588642997,
+    "bullish_banks": 4,
+    "top_performers": [
+      {
+        "Symbol": "USB",
+        "Total_7h_Return": 0.003837557111642,
+        "Avg_Confidence": 63.00191806423072,
+        "Bullish_Hours": "5/7",
+        "Max_Hourly_Return": 0.0021792756745945,
+        "Min_Hourly_Return": -0.0002553024656191,
+        "Net_Direction": "Bullish",
+        "Strength": 0.003837557111642
+      },
+      {
+        "Symbol": "BLK",
+        "Total_7h_Return": 0.0017466248808362,
+        "Avg_Confidence": 53.8978811750918,
+        "Bullish_Hours": "6/7",
+        "Max_Hourly_Return": 0.0006740875069073,
+        "Min_Hourly_Return": -8.219417049881066e-05,
+        "Net_Direction": "Bullish",
+        "Strength": 0.0017466248808362
+      },
+      {
+        "Symbol": "BAC",
+        "Total_7h_Return": 0.0005038599224459,
+        "Avg_Confidence": 80.39796031914382,
+        "Bullish_Hours": "3/7",
+        "Max_Hourly_Return": 0.0011346113680263,
+        "Min_Hourly_Return": -0.0004721042092863,
+        "Net_Direction": "Bullish",
+        "Strength": 0.0005038599224459
+      },
+      {
+        "Symbol": "PNC",
+        "Total_7h_Return": 1.06330993200187e-06,
+        "Avg_Confidence": 53.72720666863039,
+        "Bullish_Hours": "2/7",
+        "Max_Hourly_Return": 0.0011844532925747,
+        "Min_Hourly_Return": -0.0004311171746277,
+        "Net_Direction": "Bullish",
+        "Strength": 1.06330993200187e-06
+      },
+      {
+        "Symbol": "MS",
+        "Total_7h_Return": -0.0016209731426471,
+        "Avg_Confidence": 63.67434494604036,
+        "Bullish_Hours": "2/7",
+        "Max_Hourly_Return": 0.0003994361017173,
+        "Min_Hourly_Return": -0.0011223706303632,
+        "Net_Direction": "Bearish",
+        "Strength": 0.0016209731426471
+      }
+    ]
+  },
+  "arima": {
+    "available": true,
+    "portfolio_return": 0.05839132731936872,
+    "bullish_banks": 8,
+    "top_performers": [
+      {
+        "Symbol": "USB",
+        "Total_7h_Return": 0.0151466065395415,
+        "Avg_Confidence": 22.71696622599226,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.0021936809594927,
+        "Min_Hourly_Return": 0.0021396021879201,
+        "Net_Direction": "Bullish",
+        "Strength": 0.0151466065395415,
+        "ARIMA_Order": "(1, 1, 1)",
+        "Model_Type": "ARIMA"
+      },
+      {
+        "Symbol": "BAC",
+        "Total_7h_Return": 0.0144017410196148,
+        "Avg_Confidence": 29.176194173433185,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.0020573915742306,
+        "Min_Hourly_Return": 0.0020573915742306,
+        "Net_Direction": "Bullish",
+        "Strength": 0.0144017410196148,
+        "ARIMA_Order": "(0, 1, 1)",
+        "Model_Type": "ARIMA"
+      },
+      {
+        "Symbol": "GS",
+        "Total_7h_Return": 0.0122710330082607,
+        "Avg_Confidence": 25.106986919003624,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.0018883874028482,
+        "Min_Hourly_Return": 0.0016069815561181,
+        "Net_Direction": "Bullish",
+        "Strength": 0.0122710330082607,
+        "ARIMA_Order": "(2, 1, 1)",
+        "Model_Type": "ARIMA"
+      },
+      {
+        "Symbol": "TFC",
+        "Total_7h_Return": 0.0093983038566101,
+        "Avg_Confidence": 17.590992366719043,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.0014060153965905,
+        "Min_Hourly_Return": 0.00127585305434,
+        "Net_Direction": "Bullish",
+        "Strength": 0.0093983038566101,
+        "ARIMA_Order": "(2, 1, 1)",
+        "Model_Type": "ARIMA"
+      },
+      {
+        "Symbol": "MS",
+        "Total_7h_Return": 0.0092560888078964,
+        "Avg_Confidence": 24.28982251361277,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.001322298401128,
+        "Min_Hourly_Return": 0.001322298401128,
+        "Net_Direction": "Bullish",
+        "Strength": 0.0092560888078964,
+        "ARIMA_Order": "(0, 1, 1)",
+        "Model_Type": "ARIMA"
+      }
+    ]
+  },
+  "neural_network": {
+    "available": true,
+    "portfolio_return": -1.9254027951744703,
+    "bullish_banks": 8,
+    "top_performers": [
+      {
+        "Symbol": "COF",
+        "Total_7h_Return": 2.075680707736016,
+        "Avg_Confidence": 1.117766376884543,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.2965258153908594,
+        "Min_Hourly_Return": 0.2965258153908594,
+        "Net_Direction": "Bullish",
+        "Strength": 2.075680707736016,
+        "NN_Iterations": 54,
+        "NN_Test_R2": -2236.1763441954604,
+        "Model_Type": "Neural_Network"
+      },
+      {
+        "Symbol": "JPM",
+        "Total_7h_Return": 1.8192503007295877,
+        "Avg_Confidence": 1.915889408928859,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.2598929001042268,
+        "Min_Hourly_Return": 0.2598929001042268,
+        "Net_Direction": "Bullish",
+        "Strength": 1.8192503007295877,
+        "NN_Iterations": 38,
+        "NN_Test_R2": -3006.083388979252,
+        "Model_Type": "Neural_Network"
+      },
+      {
+        "Symbol": "AXP",
+        "Total_7h_Return": 1.7309455702729029,
+        "Avg_Confidence": 1.3562492362142502,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.2472779386104147,
+        "Min_Hourly_Return": 0.2472779386104147,
+        "Net_Direction": "Bullish",
+        "Strength": 1.7309455702729029,
+        "NN_Iterations": 39,
+        "NN_Test_R2": -4389.215561773774,
+        "Model_Type": "Neural_Network"
+      },
+      {
+        "Symbol": "USB",
+        "Total_7h_Return": 1.3147507904457465,
+        "Avg_Confidence": 1.3951007086508402,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.1878215414922495,
+        "Min_Hourly_Return": 0.1878215414922495,
+        "Net_Direction": "Bullish",
+        "Strength": 1.3147507904457465,
+        "NN_Iterations": 35,
+        "NN_Test_R2": -3645.392153773317,
+        "Model_Type": "Neural_Network"
+      },
+      {
+        "Symbol": "BAC",
+        "Total_7h_Return": 1.3070210229865389,
+        "Avg_Confidence": 1.867604391411572,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.1867172889980769,
+        "Min_Hourly_Return": 0.1867172889980769,
+        "Net_Direction": "Bullish",
+        "Strength": 1.3070210229865389,
+        "NN_Iterations": 96,
+        "NN_Test_R2": -3317.8690577846155,
+        "Model_Type": "Neural_Network"
+      }
+    ]
+  },
+  "ensemble": {
+    "available": true,
+    "portfolio_return": 0.013804259365362299,
+    "bullish_banks": 6,
+    "top_performers": [
+      {
+        "Symbol": "USB",
+        "Total_7h_Return": 0.0094920818255915,
+        "Avg_Confidence": 30.371181280650077,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.0021633134515112,
+        "Min_Hourly_Return": 0.0009537637347677,
+        "Net_Direction": "Bullish",
+        "Strength": 0.0094920818255915,
+        "Models_Used": "Prophet, ARIMA",
+        "NN_Excluded": true,
+        "Model_Type": "Ensemble_Clean"
+      },
+      {
+        "Symbol": "BAC",
+        "Total_7h_Return": 0.00745280047103,
+        "Avg_Confidence": 39.27420359951642,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.0015960014711284,
+        "Min_Hourly_Return": 0.0007926436824721,
+        "Net_Direction": "Bullish",
+        "Strength": 0.00745280047103,
+        "Models_Used": "Prophet, ARIMA",
+        "NN_Excluded": true,
+        "Model_Type": "Ensemble_Clean"
+      },
+      {
+        "Symbol": "GS",
+        "Total_7h_Return": 0.0047461515097145,
+        "Avg_Confidence": 33.23893709266166,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.0010274930576263,
+        "Min_Hourly_Return": 0.0003526447724048,
+        "Net_Direction": "Bullish",
+        "Strength": 0.0047461515097145,
+        "Models_Used": "Prophet, ARIMA",
+        "NN_Excluded": true,
+        "Model_Type": "Ensemble_Clean"
+      },
+      {
+        "Symbol": "MS",
+        "Total_7h_Return": 0.0038175578326244,
+        "Avg_Confidence": 31.99661400194284,
+        "Bullish_Hours": "7/7",
+        "Max_Hourly_Return": 0.0008608672514226,
+        "Min_Hourly_Return": 9.99638853824e-05,
+        "Net_Direction": "Bullish",
+        "Strength": 0.0038175578326244,
+        "Models_Used": "Prophet, ARIMA",
+        "NN_Excluded": true,
+        "Model_Type": "Ensemble_Clean"
+      },
+      {
+        "Symbol": "WFC",
+        "Total_7h_Return": 0.0010634606574317,
+        "Avg_Confidence": 33.1809855896806,
+        "Bullish_Hours": "5/7",
+        "Max_Hourly_Return": 0.0006740948002666,
+        "Min_Hourly_Return": -0.0010628386775657,
+        "Net_Direction": "Bullish",
+        "Strength": 0.0010634606574317,
+        "Models_Used": "Prophet, ARIMA",
+        "NN_Excluded": true,
+        "Model_Type": "Ensemble_Clean"
+      }
+    ]
+  }
+}
