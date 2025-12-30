@@ -1,0 +1,52 @@
+@"
+# Virtual Environment
+venv_stock/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*`$py.class
+*.so
+.Python
+
+# Environment Variables
+.env
+config/.env
+
+# Data (große Files nicht committen)
+csv_alpha/
+data/raw/*.csv
+data/processed/*.csv
+data/predictions/*.csv
+
+# Keep structure but not data
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/predictions/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model artifacts
+*.pkl
+*.h5
+*.joblib
+models/*.pkl
+"@ | Out-File -FilePath ".gitignore" -Encoding UTF8

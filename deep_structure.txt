@@ -1,0 +1,144 @@
+﻿portfolio/
+│
+├── alpha_vantage_loader.py
+├── api_calls_today.json
+├── api_key.py
+├── clean_structure.txt
+├── combined_trading_dashboard.py
+├── dashboard_data.json
+├── dashboard_integration.py
+├── debug_data_format.py
+├── deep_structure.txt
+├── detailed_predictions.json
+├── enhanced_feature_engenerring.py
+├── ensemble_predictor.py
+├── LICENSE
+├── live_dashboard.html
+├── master_stock_prediction.py
+├── model_arima.py
+├── model_lstm.py
+├── model_prophet.py
+├── prediction_dashboard.html
+├── README.md
+├── requirements.txt
+├── tvs_adapted_integration.py
+├── tvs_Trading_validations_system.html
+├── yahoo_finance_loader.py
+│
+├── arima_predictions/
+│   ├── arima_model_details.csv
+│   ├── arima_trading_summary.csv
+│   ├── AXP_7h_arima_prediction.csv
+│   ├── BAC_7h_arima_prediction.csv
+│   ├── BLK_7h_arima_prediction.csv
+│   ├── C_7h_arima_prediction.csv
+│   ├── COF_7h_arima_prediction.csv
+│   ├── GS_7h_arima_prediction.csv
+│   ├── JPM_7h_arima_prediction.csv
+│   ├── MS_7h_arima_prediction.csv
+│   ├── PNC_7h_arima_prediction.csv
+│   ├── TFC_7h_arima_prediction.csv
+│   ├── USB_7h_arima_prediction.csv
+│   └── WFC_7h_arima_prediction.csv
+├── csv_alpha/
+│   ├── AXP.csv
+│   ├── BAC.csv
+│   ├── BLK.csv
+│   ├── C.csv
+│   ├── COF.csv
+│   ├── DXY.csv
+│   ├── GS.csv
+│   ├── IYF.csv
+│   ├── JPM.csv
+│   ├── MS.csv
+│   ├── PNC.csv
+│   ├── SHY.csv
+│   ├── SPX.csv
+│   ├── TFC.csv
+│   ├── TLT.csv
+│   ├── TNX.csv
+│   ├── USB.csv
+│   ├── VFH.csv
+│   ├── VIX.csv
+│   ├── WFC.csv
+│   └── XLF.csv
+├── ensemble_predictions_without_NN/
+│   ├── AXP_7h_ensemble_prediction.csv
+│   ├── BAC_7h_ensemble_prediction.csv
+│   ├── BLK_7h_ensemble_prediction.csv
+│   ├── C_7h_ensemble_prediction.csv
+│   ├── COF_7h_ensemble_prediction.csv
+│   ├── ensemble_trading_summary_without_NN.csv
+│   ├── GS_7h_ensemble_prediction.csv
+│   ├── JPM_7h_ensemble_prediction.csv
+│   ├── MS_7h_ensemble_prediction.csv
+│   ├── PNC_7h_ensemble_prediction.csv
+│   ├── TFC_7h_ensemble_prediction.csv
+│   ├── USB_7h_ensemble_prediction.csv
+│   └── WFC_7h_ensemble_prediction.csv
+├── ensemble_predictions_with_NN/
+│   ├── AXP_7h_ensemble_prediction.csv
+│   ├── BAC_7h_ensemble_prediction.csv
+│   ├── BLK_7h_ensemble_prediction.csv
+│   ├── C_7h_ensemble_prediction.csv
+│   ├── COF_7h_ensemble_prediction.csv
+│   ├── ensemble_trading_summary_with_NN.csv
+│   ├── GS_7h_ensemble_prediction.csv
+│   ├── JPM_7h_ensemble_prediction.csv
+│   ├── MS_7h_ensemble_prediction.csv
+│   ├── PNC_7h_ensemble_prediction.csv
+│   ├── TFC_7h_ensemble_prediction.csv
+│   ├── USB_7h_ensemble_prediction.csv
+│   └── WFC_7h_ensemble_prediction.csv
+├── features_enhanced/
+│   ├── AXP_enhanced.csv
+│   ├── BAC_enhanced.csv
+│   ├── BLK_enhanced.csv
+│   ├── C_enhanced.csv
+│   ├── COF_enhanced.csv
+│   ├── DXY_enhanced.csv
+│   ├── GS_enhanced.csv
+│   ├── IYF_enhanced.csv
+│   ├── JPM_enhanced.csv
+│   ├── MS_enhanced.csv
+│   ├── PNC_enhanced.csv
+│   ├── SHY_enhanced.csv
+│   ├── SPX_enhanced.csv
+│   ├── summary.csv
+│   ├── TFC_enhanced.csv
+│   ├── TLT_enhanced.csv
+│   ├── TNX_enhanced.csv
+│   ├── USB_enhanced.csv
+│   ├── VFH_enhanced.csv
+│   ├── VIX_enhanced.csv
+│   ├── WFC_enhanced.csv
+│   └── XLF_enhanced.csv
+├── neural_network_predictions/
+│   ├── AXP_7h_neural_network_prediction.csv
+│   ├── BAC_7h_neural_network_prediction.csv
+│   ├── BLK_7h_neural_network_prediction.csv
+│   ├── C_7h_neural_network_prediction.csv
+│   ├── COF_7h_neural_network_prediction.csv
+│   ├── GS_7h_neural_network_prediction.csv
+│   ├── JPM_7h_neural_network_prediction.csv
+│   ├── MS_7h_neural_network_prediction.csv
+│   ├── neural_network_model_details.csv
+│   ├── neural_network_trading_summary.csv
+│   ├── PNC_7h_neural_network_prediction.csv
+│   ├── TFC_7h_neural_network_prediction.csv
+│   ├── USB_7h_neural_network_prediction.csv
+│   └── WFC_7h_neural_network_prediction.csv
+└── prophet_predictions/
+    ├── AXP_7h_prediction.csv
+    ├── BAC_7h_prediction.csv
+    ├── BLK_7h_prediction.csv
+    ├── C_7h_prediction.csv
+    ├── COF_7h_prediction.csv
+    ├── GS_7h_prediction.csv
+    ├── JPM_7h_prediction.csv
+    ├── MS_7h_prediction.csv
+    ├── PNC_7h_prediction.csv
+    ├── TFC_7h_prediction.csv
+    ├── trading_summary.csv
+    ├── USB_7h_prediction.csv
+    └── WFC_7h_prediction.csv
