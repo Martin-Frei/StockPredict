@@ -123,7 +123,7 @@ class YahooFinanceLoader:
             logger.info(f"Last date in CSV: {last_date}")
             
             # Calculate hours since last data
-            hours_since = (datetime.now() - last_date).total_seconds() / 3600
+            hours_since = (datetime.now() - pd.Timestamp(last_date).tz_localize(None)).total_seconds() / 3600
             hours_to_fetch = min(int(hours_since) + 24, hours_back)  # +24 for overlap
             
             new_data = self.fetch_stock_data(symbol, hours_to_fetch, interval)

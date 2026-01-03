@@ -3,6 +3,7 @@
 venv_stock/
 venv/
 env/
+ENV/
 
 # Python
 __pycache__/
@@ -10,16 +11,21 @@ __pycache__/
 *`$py.class
 *.so
 .Python
+*.egg-info/
+dist/
+build/
 
 # Environment Variables
 .env
 config/.env
+secrets.yaml
 
 # Data (große Files nicht committen)
 csv_alpha/
 data/raw/*.csv
 data/processed/*.csv
-data/predictions/*.csv
+data/predictions/
+data/backtest_results/
 
 # Keep structure but not data
 !data/raw/.gitkeep
@@ -46,7 +52,7 @@ Thumbs.db
 
 # Model artifacts
 *.pkl
-*.h5
 *.joblib
+*.h5
 models/*.pkl
 "@ | Out-File -FilePath ".gitignore" -Encoding UTF8
